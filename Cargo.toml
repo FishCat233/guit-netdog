@@ -1,0 +1,7 @@
+[package]
+name = "guit-netdog"
+authors = ["FishCat233"]
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]

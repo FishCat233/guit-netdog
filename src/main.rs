@@ -1,6 +1,10 @@
 use std::sync::mpsc::{self, Sender};
 
-use guit_netdog::{WlanClient, WlanEvent, ssid_to_string};
+use guit_netdog::{
+    WlanClient,
+    WlanEvent::{self, Exit},
+    ssid_to_string,
+};
 use windows::{
     Win32::NetworkManagement::WiFi::{
         L2_NOTIFICATION_DATA, WLAN_CONNECTION_NOTIFICATION_DATA, WLAN_NOTIFICATION_SOURCE_ACM,
@@ -76,9 +80,13 @@ fn main() -> Result<()> {
 
     println!("Listening for WLAN notifications...\nPress Enter to exit.");
 
+    let input_sender = context.as_ref().clone();
+
     let input_thread = std::thread::spawn(move || {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
+
+        let _ = input_sender.send(Exit);
     });
 
     while let Ok(event) = rx.recv() {

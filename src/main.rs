@@ -12,6 +12,7 @@ use windows::{
     },
     core::Result,
 };
+use winrt_toast_reborn::{Toast, ToastManager};
 
 unsafe extern "system" fn wlan_callback(
     data: *mut L2_NOTIFICATION_DATA,
@@ -51,6 +52,7 @@ unsafe extern "system" fn wlan_callback(
 
 fn main() -> Result<()> {
     let wlan = WlanClient::open()?;
+    let toast_manager = ToastManager::new(ToastManager::POWERSHELL_AUM_ID);
 
     println!("Negotiated WLAN API version: {}", wlan.negotiated_version());
 
@@ -81,6 +83,17 @@ fn main() -> Result<()> {
     println!("Listening for WLAN notifications...\nPress Enter to exit.");
 
     let input_sender = context.as_ref().clone();
+
+    let mut toast = Toast::new();
+    toast
+        .text1("Guit Netdog")
+        .text2("Netdog are listening...")
+        .text3(
+            winrt_toast_reborn::Text::new("Via SMS")
+                .with_placement(winrt_toast_reborn::content::text::TextPlacement::Attribution),
+        );
+
+    let _ = toast_manager.show(&toast);
 
     let input_thread = std::thread::spawn(move || {
         let mut input = String::new();

@@ -2,6 +2,7 @@
 
 pub mod error;
 pub mod event;
+pub mod toast_notification;
 pub mod wlan;
 
 pub use event::WlanEvent;

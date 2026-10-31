@@ -3,9 +3,9 @@ use std::os::raw::c_void;
 use windows::Win32::Foundation::{E_FAIL, ERROR_SUCCESS, HANDLE};
 use windows::Win32::NetworkManagement::WiFi::{
     WLAN_CONNECTION_ATTRIBUTES, WLAN_INTERFACE_INFO_LIST, WLAN_NOTIFICATION_CALLBACK,
-    WLAN_NOTIFICATION_SOURCE_ALL, WLAN_NOTIFICATION_SOURCES, WLAN_OPCODE_VALUE_TYPE,
-    WlanCloseHandle, WlanEnumInterfaces, WlanOpenHandle, WlanQueryInterface,
-    WlanRegisterNotification, wlan_interface_state_connected, wlan_intf_opcode_current_connection,
+    WLAN_NOTIFICATION_SOURCE_ALL, WLAN_OPCODE_VALUE_TYPE, WlanCloseHandle, WlanEnumInterfaces,
+    WlanOpenHandle, WlanQueryInterface, WlanRegisterNotification, wlan_interface_state_connected,
+    wlan_intf_opcode_current_connection,
 };
 use windows::core::{Error, GUID, Result};
 

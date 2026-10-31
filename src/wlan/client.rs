@@ -1,16 +1,21 @@
+use std::os::raw::c_void;
+
 use windows::Win32::Foundation::{E_FAIL, ERROR_SUCCESS, HANDLE};
 use windows::Win32::NetworkManagement::WiFi::{
-    WLAN_CONNECTION_ATTRIBUTES, WLAN_INTERFACE_INFO_LIST, WLAN_OPCODE_VALUE_TYPE, WlanCloseHandle,
-    WlanEnumInterfaces, WlanOpenHandle, WlanQueryInterface, wlan_interface_state_connected,
-    wlan_intf_opcode_current_connection,
+    WLAN_CONNECTION_ATTRIBUTES, WLAN_INTERFACE_INFO_LIST, WLAN_NOTIFICATION_CALLBACK,
+    WLAN_NOTIFICATION_SOURCE_ALL, WLAN_NOTIFICATION_SOURCES, WLAN_OPCODE_VALUE_TYPE,
+    WlanCloseHandle, WlanEnumInterfaces, WlanOpenHandle, WlanQueryInterface,
+    WlanRegisterNotification, wlan_interface_state_connected, wlan_intf_opcode_current_connection,
 };
 use windows::core::{Error, GUID, Result};
 
 use crate::error::win32_result_to_error;
+use crate::wlan::WlanNotificationRegistration;
 use crate::wlan::memory::WlanMemory;
 use crate::wlan::types::WlanInterfaceInfo;
 
 /// WLAN API 句柄的 RAII 包装
+#[derive(Debug)]
 pub struct WlanClient {
     handle: HANDLE,
     negotiated_version: u32,
@@ -36,7 +41,7 @@ impl WlanClient {
         }
     }
 
-    fn handle(&self) -> HANDLE {
+    pub fn handle(&self) -> HANDLE {
         self.handle
     }
 
@@ -119,6 +124,30 @@ impl WlanClient {
 
             Ok(data.as_ptr().cast::<WLAN_CONNECTION_ATTRIBUTES>().read())
         }
+    }
+
+    pub fn register_notification(
+        &self,
+        callback: WLAN_NOTIFICATION_CALLBACK,
+        context: Option<*const c_void>,
+    ) -> Result<WlanNotificationRegistration<'_>> {
+        unsafe {
+            let result = WlanRegisterNotification(
+                self.handle(),
+                WLAN_NOTIFICATION_SOURCE_ALL,
+                false, // 不忽略重复消息
+                callback,
+                context,
+                None,
+                None,
+            );
+
+            if result != ERROR_SUCCESS.0 {
+                return Err(win32_result_to_error(result));
+            }
+        }
+
+        Ok(WlanNotificationRegistration { client: self })
     }
 }
 
